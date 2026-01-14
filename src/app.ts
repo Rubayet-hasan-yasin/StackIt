@@ -1,8 +1,9 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import config from './config';
 import { connectDatabase } from './database';
 import routes from './routes';
+import { requestLogger, errorHandler, notFoundHandler } from './shared/middleware';
 
 function initializeMiddlewares(app: Application): void {
   // CORS
@@ -13,10 +14,7 @@ function initializeMiddlewares(app: Application): void {
   app.use(express.urlencoded({ extended: true }));
 
   // Request logging
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
-  });
+  app.use(requestLogger);
 }
 
 function initializeRoutes(app: Application): void {
@@ -36,24 +34,11 @@ function initializeRoutes(app: Application): void {
   });
 
   // 404 handler
-  app.use((req: Request, res: Response) => {
-    res.status(404).json({
-      status: 'ERROR',
-      message: 'Route not found',
-      path: req.path,
-    });
-  });
+  app.use(notFoundHandler);
 }
 
 function initializeErrorHandling(app: Application): void {
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Error:', err);
-    res.status(500).json({
-      status: 'ERROR',
-      message: config.nodeEnv === 'development' ? err.message : 'Internal server error',
-      ...(config.nodeEnv === 'development' && { stack: err.stack }),
-    });
-  });
+  app.use(errorHandler);
 }
 
 export function createApp(): Application {
