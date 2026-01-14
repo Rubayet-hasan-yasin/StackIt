@@ -4,6 +4,7 @@ import config from './config';
 import { connectDatabase } from './database';
 import routes from './routes';
 import { requestLogger, errorHandler, notFoundHandler } from './shared/middleware';
+import passport from './config/passport';
 
 function initializeMiddlewares(app: Application): void {
   // CORS
@@ -12,6 +13,9 @@ function initializeMiddlewares(app: Application): void {
   // Body parser
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Initialize Passport
+  app.use(passport.initialize());
 
   // Request logging
   app.use(requestLogger);
