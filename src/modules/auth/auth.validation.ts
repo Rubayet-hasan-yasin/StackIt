@@ -31,6 +31,10 @@ export const updateProfileSchema = z.object({
   avatar: z.string().url('Avatar must be a valid URL').optional(),
 });
 
+export const googleMobileLoginSchema = z.object({
+  idToken: z.string().min(1, 'Google ID token is required'),
+});
+
 export const setPinSchema = z.object({
   pin: z.string().length(4, 'PIN must be exactly 4 digits').regex(/^[0-9]+$/, 'PIN must contain only numbers'),
 });
@@ -42,3 +46,4 @@ export type VerifyOTPDTO = z.infer<typeof verifyOTPSchema>;
 export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;
 export type UpdateProfileDTO = z.infer<typeof updateProfileSchema>;
 export type SetPinDTO = z.infer<typeof setPinSchema>;
+export type GoogleMobileLoginDTO = z.infer<typeof googleMobileLoginSchema>;

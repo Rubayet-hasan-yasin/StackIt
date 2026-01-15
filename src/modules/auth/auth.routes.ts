@@ -4,6 +4,7 @@ import {
   register,
   login,
   googleCallback,
+  googleMobileLogin,
   requestPasswordReset,
   resetPassword,
   getProfile,
@@ -15,6 +16,7 @@ import { validate } from '../../shared/middleware/validate';
 import {
   registerSchema,
   loginSchema,
+  googleMobileLoginSchema,
   requestPasswordResetSchema,
   resetPasswordSchema,
   updateProfileSchema,
@@ -40,6 +42,9 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   googleCallback
 );
+
+
+router.post('/google/mobile', validate(googleMobileLoginSchema), googleMobileLogin);
 
 
 router.post('/forgot-password', validate(requestPasswordResetSchema), requestPasswordReset);

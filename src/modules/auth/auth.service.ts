@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import { OAuth2Client } from 'google-auth-library';
 import { User, IUser } from '../user/user.model';
 import { OTP } from './otp.model';
 import config from '../../config';
@@ -7,6 +8,7 @@ import type { RegisterDTO, AuthResponse, ResetPasswordDTO, JWTPayload } from '..
 
 export class AuthService {
   private transporter: nodemailer.Transporter;
+  private googleClient: OAuth2Client;
 
   constructor() {
     // Setup email transporter
@@ -19,6 +21,9 @@ export class AuthService {
         pass: config.email.password,
       } : undefined,
     });
+
+    // Setup Google OAuth client
+    this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   }
 
   // Generate JWT token
@@ -175,6 +180,55 @@ export class AuthService {
 
     await user.save();
     return user;
+  }
+
+  // Google mobile login
+  async googleMobileLogin(idToken: string): Promise<AuthResponse> {
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      
+      if (!payload || !payload.email) {
+        throw new Error('Invalid Google token');
+      }
+
+      const { sub: googleId, email, name, picture } = payload;
+
+      let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+      if (user) {
+        if (!user.googleId) {
+          user.googleId = googleId;
+          user.isEmailVerified = true;
+          if (picture && !user.avatar) {
+            user.avatar = picture;
+          }
+          await user.save();
+        }
+      } else {
+  
+        user = await User.create({
+          googleId,
+          email,
+          name: name || email.split('@')[0],
+          avatar: picture,
+          isEmailVerified: true,
+        });
+      }
+
+      const token = this.generateToken(user._id.toString(), user.email);
+
+      return this.formatUserResponse(user, token);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Google authentication failed: ${error.message}`);
+      }
+      throw new Error('Google authentication failed');
+    }
   }
 }
 

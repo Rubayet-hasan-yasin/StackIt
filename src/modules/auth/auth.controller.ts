@@ -181,3 +181,22 @@ export const logout = async (_req: Request, res: Response): Promise<void> => {
     message: 'Logout successful',
   });
 };
+
+export const googleMobileLogin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { idToken } = req.body;
+    
+    const result = await authService.googleMobileLogin(idToken);
+
+    res.status(HTTP_STATUS.OK).json({
+      status: API_STATUS.OK,
+      message: 'Google login successful',
+      data: result,
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      status: API_STATUS.ERROR,
+      message: error instanceof Error ? error.message : 'Google authentication failed',
+    });
+  }
+};
