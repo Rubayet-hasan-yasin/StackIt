@@ -8,8 +8,6 @@ import {
   requestPasswordReset,
   resetPassword,
   changePassword,
-  getProfile,
-  updateProfile,
   deleteAccount,
   logout,
 } from './auth.controller';
@@ -21,8 +19,7 @@ import {
   googleMobileLoginSchema,
   requestPasswordResetSchema,
   resetPasswordSchema,
-  changePasswordSchema,
-  updateProfileSchema,
+  changePasswordSchema
 } from './auth.validation';
 
 const router = Router();
@@ -60,12 +57,6 @@ router.post('/change-password', authenticate, validate(changePasswordSchema), ch
 
 
 router.post('/logout', authenticate, logout);
-
-
-router.get('/profile', authenticate, getProfile);
-
-
-router.put('/profile', authenticate, validate(updateProfileSchema), updateProfile);
 
 
 router.delete('/account', authenticate, deleteAccount);

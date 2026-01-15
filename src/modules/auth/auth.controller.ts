@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
 import { HTTP_STATUS, API_STATUS } from '../../shared/constants';
-import type { RegisterDTO, ResetPasswordDTO, UpdateProfileDTO } from '../../shared/types';
+import type { RegisterDTO, ResetPasswordDTO } from '../../shared/types';
 import { IUser } from '../user/user.model';
 
 // Extend Express Request to include user
@@ -101,76 +101,6 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       status: API_STATUS.ERROR,
       message: error instanceof Error ? error.message : 'Password reset failed',
-    });
-  }
-};
-
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = req.user as IUser;
-    
-    if (!user) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        status: API_STATUS.ERROR,
-        message: 'Unauthorized',
-      });
-      return;
-    }
-
-    const profile = await authService.getProfile(user._id.toString());
-
-    res.status(HTTP_STATUS.OK).json({
-      status: API_STATUS.OK,
-      data: {
-        id: profile._id,
-        email: profile.email,
-        name: profile.name,
-        avatar: profile.avatar,
-        isEmailVerified: profile.isEmailVerified,
-        createdAt: profile.createdAt,
-      },
-    });
-  } catch (error) {
-    res.status(HTTP_STATUS.BAD_REQUEST).json({
-      status: API_STATUS.ERROR,
-      message: error instanceof Error ? error.message : 'Failed to get profile',
-    });
-  }
-};
-
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = req.user as IUser;
-    const data: UpdateProfileDTO = req.body;
-    
-    if (!user) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        status: API_STATUS.ERROR,
-        message: 'Unauthorized',
-      });
-      return;
-    }
-
-    const updatedUser = await authService.updateProfile(
-      user._id.toString(),
-      data.name,
-      data.avatar
-    );
-
-    res.status(HTTP_STATUS.OK).json({
-      status: API_STATUS.OK,
-      message: 'Profile updated successfully',
-      data: {
-        id: updatedUser._id,
-        email: updatedUser.email,
-        name: updatedUser.name,
-        avatar: updatedUser.avatar,
-      },
-    });
-  } catch (error) {
-    res.status(HTTP_STATUS.BAD_REQUEST).json({
-      status: API_STATUS.ERROR,
-      message: error instanceof Error ? error.message : 'Failed to update profile',
     });
   }
 };

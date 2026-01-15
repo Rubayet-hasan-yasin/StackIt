@@ -167,33 +167,6 @@ export class AuthService {
     }
   }
 
-  // Get user profile
-  async getProfile(userId: string): Promise<IUser> {
-    const user = await User.findById(userId);
-    
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    return user;
-  }
-
-  // Update user profile
-  async updateProfile(userId: string, name?: string, avatar?: string): Promise<IUser> {
-    const user = await User.findById(userId);
-    
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (name) user.name = name;
-    if (avatar) user.avatar = avatar;
-
-    await user.save();
-    return user;
-  }
-
-
   async  changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
     const user = await User.findById(userId).select('+password');
     
