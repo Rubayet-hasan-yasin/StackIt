@@ -29,7 +29,7 @@ interface Config {
     password: string;
     from: string;
   };
-  clientURL: string;
+  BACKEND_URL: string;
 }
 
 const config: Config = {
@@ -58,7 +58,7 @@ const config: Config = {
     password: process.env.EMAIL_PASSWORD || '',
     from: process.env.EMAIL_FROM || 'noreply@stackit.com',
   },
-  clientURL: process.env.CLIENT_URL || 'http://localhost:3000',
+  BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:3000',
 };
 
 export default config;

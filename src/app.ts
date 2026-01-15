@@ -1,10 +1,12 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
 import config from './config';
 import { connectDatabase } from './database';
 import routes from './routes';
 import { requestLogger, errorHandler, notFoundHandler } from './shared/middleware';
 import passport from './config/passport';
+import { uploadService } from './modules/upload';
 
 function initializeMiddlewares(app: Application): void {
   // CORS
@@ -13,6 +15,10 @@ function initializeMiddlewares(app: Application): void {
   // Body parser
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  if (config.nodeEnv === 'development') {
+    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  }
 
   // Initialize Passport
   app.use(passport.initialize());
@@ -58,6 +64,11 @@ export function createApp(): Application {
 export async function startServer(): Promise<void> {
   try {
     const app = createApp();
+    
+    // Ensure upload directory exists (only in development)
+    if (config.nodeEnv === 'development') {
+      await uploadService.ensureUploadDir();
+    }
     
     // Connect to database
     await connectDatabase();
