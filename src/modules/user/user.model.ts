@@ -11,6 +11,8 @@ export interface IUser extends Document {
   pinHash?: string;
   storageLimit: number; // GB
   usedStorage: number; // GB
+  isDeleted: boolean;
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -58,11 +60,26 @@ const userSchema = new Schema<IUser>(
       type: Number,
       default: 0,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Exclude soft-deleted users from queries by default
+userSchema.pre(/^find/, function(next) {
+  // @ts-ignore
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

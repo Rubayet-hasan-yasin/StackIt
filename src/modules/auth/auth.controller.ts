@@ -227,3 +227,29 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+export const deleteAccount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.user as IUser;
+    
+    if (!user) {
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        status: API_STATUS.ERROR,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    await authService.deleteUser(user._id.toString());
+
+    res.status(HTTP_STATUS.OK).json({
+      status: API_STATUS.OK,
+      message: 'Account deleted successfully',
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      status: API_STATUS.ERROR,
+      message: error instanceof Error ? error.message : 'Failed to delete account',
+    });
+  }
+};

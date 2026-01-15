@@ -50,10 +50,16 @@ export class AuthService {
 
   // Register new user
   async register(data: RegisterDTO): Promise<AuthResponse> {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: data.email });
+    // Check if user already exists (including deleted users)
+    const existingUser = await User.findOne({ email: data.email }).where({ isDeleted: false });
     if (existingUser) {
       throw new Error('User already exists with this email');
+    }
+
+    // Check for deleted users with same email
+    const deletedUser = await User.findOne({ email: data.email, isDeleted: true });
+    if (deletedUser) {
+      throw new Error('This email was previously used for a deleted account. Please contact support.');
     }
 
     // Create user
@@ -81,6 +87,11 @@ export class AuthService {
     
     if (!user) {
       throw new Error('No user found with this email');
+    }
+
+    // Check if user is deleted
+    if (user.isDeleted) {
+      throw new Error('This account has been deleted');
     }
 
     // Generate 6-digit OTP
@@ -203,6 +214,24 @@ export class AuthService {
 
     // Update to new password
     user.password = newPassword;
+    await user.save();
+  }
+
+  // Soft delete user account
+  async deleteUser(userId: string): Promise<void> {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.isDeleted) {
+      throw new Error('User account is already deleted');
+    }
+
+    // Soft delete the user
+    user.isDeleted = true;
+    user.deletedAt = new Date();
     await user.save();
   }
 

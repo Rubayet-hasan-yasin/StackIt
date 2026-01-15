@@ -20,6 +20,11 @@ passport.use(
           return done(null, false, { message: 'Invalid email or password' });
         }
 
+        // Check if user is deleted
+        if (user.isDeleted) {
+          return done(null, false, { message: 'This account has been deleted' });
+        }
+
         const isMatch = await user.comparePassword(password);
         
         if (!isMatch) {
@@ -49,6 +54,10 @@ if (config.google.clientId && config.google.clientSecret) {
           let user = await User.findOne({ googleId: profile.id });
 
           if (user) {
+            // Check if user is deleted
+            if (user.isDeleted) {
+              return done(null, false, { message: 'This account has been deleted' });
+            }
             return done(null, user);
           }
 
@@ -61,6 +70,11 @@ if (config.google.clientId && config.google.clientSecret) {
           user = await User.findOne({ email });
 
           if (user) {
+            // Check if user is deleted
+            if (user.isDeleted) {
+              return done(null, false, { message: 'This account has been deleted' });
+            }
+            
             // Link Google account to existing user
             user.googleId = profile.id;
             user.isEmailVerified = true;
@@ -101,6 +115,11 @@ passport.use(
         const user = await User.findById(payload.userId);
 
         if (!user) {
+          return done(null, false);
+        }
+
+        // Check if user is deleted
+        if (user.isDeleted) {
           return done(null, false);
         }
 
