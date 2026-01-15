@@ -35,6 +35,11 @@ export const googleMobileLoginSchema = z.object({
   idToken: z.string().min(1, 'Google ID token is required'),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters long'),
+});
+
 export const setPinSchema = z.object({
   pin: z.string().length(4, 'PIN must be exactly 4 digits').regex(/^[0-9]+$/, 'PIN must contain only numbers'),
 });
@@ -45,5 +50,6 @@ export type RequestPasswordResetDTO = z.infer<typeof requestPasswordResetSchema>
 export type VerifyOTPDTO = z.infer<typeof verifyOTPSchema>;
 export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;
 export type UpdateProfileDTO = z.infer<typeof updateProfileSchema>;
+export type ChangePasswordDTO = z.infer<typeof changePasswordSchema>;
 export type SetPinDTO = z.infer<typeof setPinSchema>;
 export type GoogleMobileLoginDTO = z.infer<typeof googleMobileLoginSchema>;

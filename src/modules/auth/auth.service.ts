@@ -182,6 +182,30 @@ export class AuthService {
     return user;
   }
 
+
+  async  changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await User.findById(userId).select('+password');
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if user has a password (might be Google-only user)
+    if (!user.password) {
+      throw new Error('Cannot change password for social login accounts');
+    }
+
+    // Verify current password
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw new Error('Current password is incorrect');
+    }
+
+    // Update to new password
+    user.password = newPassword;
+    await user.save();
+  }
+
   // Google mobile login
   async googleMobileLogin(idToken: string): Promise<AuthResponse> {
     try {

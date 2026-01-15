@@ -200,3 +200,30 @@ export const googleMobileLogin = async (req: Request, res: Response): Promise<vo
     });
   }
 };
+
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.user as IUser;
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!user) {
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        status: API_STATUS.ERROR,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    await authService.changePassword(user._id.toString(), currentPassword, newPassword);
+
+    res.status(HTTP_STATUS.OK).json({
+      status: API_STATUS.OK,
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      status: API_STATUS.ERROR,
+      message: error instanceof Error ? error.message : 'Failed to change password',
+    });
+  }
+};

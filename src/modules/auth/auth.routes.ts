@@ -7,6 +7,7 @@ import {
   googleMobileLogin,
   requestPasswordReset,
   resetPassword,
+  changePassword,
   getProfile,
   updateProfile,
   logout,
@@ -19,6 +20,7 @@ import {
   googleMobileLoginSchema,
   requestPasswordResetSchema,
   resetPasswordSchema,
+  changePasswordSchema,
   updateProfileSchema,
 } from './auth.validation';
 
@@ -51,6 +53,9 @@ router.post('/forgot-password', validate(requestPasswordResetSchema), requestPas
 
 
 router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
+
+
+router.post('/change-password', authenticate, validate(changePasswordSchema), changePassword);
 
 
 router.post('/logout', authenticate, logout);
