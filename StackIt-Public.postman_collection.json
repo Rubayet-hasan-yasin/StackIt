@@ -1,0 +1,1084 @@
+{
+	"info": {
+		"_postman_id": "stackit-public-api",
+		"name": "StackIt API - Public",
+		"description": "Complete API documentation for StackIt - File Management System\n\n## Setup Instructions\n1. Import this collection into Postman\n2. Create an environment with these variables:\n   - `baseUrl` = http://localhost:3000 (or your server URL)\n   - `token` = (leave empty, will be set after login)\n\n## Authentication Flow\n1. Register a new account using POST /auth/register\n2. Login using POST /auth/login\n3. Copy the token from response\n4. Set it in your environment variable `token`\n5. All authenticated requests will now work automatically\n\n## Features\n- Authentication (Register, Login, Google OAuth, Password Reset)\n- Profile Management\n- File Management (Notes, Images, PDFs)\n- Folder Management\n- Favorites\n- Dashboard & Storage\n\nAPI Version: v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"description": "User authentication endpoints including registration, login, OAuth, and password management",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"type": "text",
+									"description": "User email address"
+								},
+								{
+									"key": "password",
+									"value": "yourpassword",
+									"type": "text",
+									"description": "Password (min 6 characters)"
+								},
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text",
+									"description": "User's full name"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Register a new user account. Returns JWT token upon success."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Automatically save token to environment",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.token) {",
+									"        pm.environment.set('token', response.data.token);",
+									"        console.log('Token saved to environment');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "yourpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Login with email and password. Token is automatically saved to environment."
+					},
+					"response": []
+				},
+				{
+					"name": "Google OAuth",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/google",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "google"]
+						},
+						"description": "Initiate Google OAuth flow (web)"
+					},
+					"response": []
+				},
+				{
+					"name": "Google Mobile Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "idToken",
+									"value": "google-id-token-from-mobile",
+									"type": "text",
+									"description": "Google ID token from mobile SDK"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/google/mobile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "google", "mobile"]
+						},
+						"description": "Login with Google ID token (mobile apps)"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "forgot-password"]
+						},
+						"description": "Request password reset OTP via email"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"type": "text"
+								},
+								{
+									"key": "otp",
+									"value": "123456",
+									"type": "text",
+									"description": "6-digit OTP from email"
+								},
+								{
+									"key": "newPassword",
+									"value": "newpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/reset-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "reset-password"]
+						},
+						"description": "Reset password using OTP"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "currentPassword",
+									"value": "oldpassword",
+									"type": "text"
+								},
+								{
+									"key": "newPassword",
+									"value": "newpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/change-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "change-password"]
+						},
+						"description": "Change password (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/account",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "account"]
+						},
+						"description": "Soft delete user account"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"description": "User profile management endpoints",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "profile"]
+						},
+						"description": "Get current user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text",
+									"description": "User's name (optional)"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"description": "Profile picture (optional, jpg/png/webp)",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "profile"]
+						},
+						"description": "Update profile with optional name and avatar"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"description": "Dashboard statistics and overview",
+			"item": [
+				{
+					"name": "Get Dashboard Summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/summary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "summary"]
+						},
+						"description": "Get storage summary and file counts by type"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recent Files",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/recent?limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "recent"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of recent files to return"
+								}
+							]
+						},
+						"description": "Get recent files with configurable limit"
+					},
+					"response": []
+				},
+				{
+					"name": "Global Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/search?q=keyword",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "keyword",
+									"description": "Search keyword"
+								}
+							]
+						},
+						"description": "Search across all files (notes, images, PDFs)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Files",
+			"description": "File management endpoints (view, delete)",
+			"item": [
+				{
+					"name": "Get All Files",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/files?type=note&folderId=&isFavorite=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "files"],
+							"query": [
+								{
+									"key": "type",
+									"value": "note",
+									"description": "Filter by type: note, image, pdf",
+									"disabled": true
+								},
+								{
+									"key": "folderId",
+									"value": "",
+									"description": "Filter by folder ID",
+									"disabled": true
+								},
+								{
+									"key": "isFavorite",
+									"value": "true",
+									"description": "Filter favorites only",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all files with optional filters"
+					},
+					"response": []
+				},
+				{
+					"name": "Get File by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/files/:fileId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "files", ":fileId"],
+							"variable": [
+								{
+									"key": "fileId",
+									"value": "file-id-here"
+								}
+							]
+						},
+						"description": "Get a single file by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete File",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/files/:fileId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "files", ":fileId"],
+							"variable": [
+								{
+									"key": "fileId",
+									"value": "file-id-here"
+								}
+							]
+						},
+						"description": "Delete any file (note, image, or PDF)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Folders",
+			"description": "Folder management with nested folder support",
+			"item": [
+				{
+					"name": "Get All Folders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders?parentId=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders"],
+							"query": [
+								{
+									"key": "parentId",
+									"value": "",
+									"description": "Filter by parent folder ID (optional)"
+								}
+							]
+						},
+						"description": "Get all folders with optional parent filter"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Folder",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "My Folder",
+									"type": "text",
+									"description": "Folder name (required)"
+								},
+								{
+									"key": "parentId",
+									"value": "",
+									"type": "text",
+									"description": "Parent folder ID for nested folders (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders"]
+						},
+						"description": "Create a new folder (supports nested folders)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Folder by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders/:folderId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders", ":folderId"],
+							"variable": [
+								{
+									"key": "folderId",
+									"value": "folder-id-here"
+								}
+							]
+						},
+						"description": "Get folder details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Folder Name",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Updated Folder Name",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders/:folderId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders", ":folderId"],
+							"variable": [
+								{
+									"key": "folderId",
+									"value": "folder-id-here"
+								}
+							]
+						},
+						"description": "Update folder name"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Folder",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders/:folderId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders", ":folderId"],
+							"variable": [
+								{
+									"key": "folderId",
+									"value": "folder-id-here"
+								}
+							]
+						},
+						"description": "Delete folder (must be empty)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Files in Folder",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/folders/:folderId/files",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "folders", ":folderId", "files"],
+							"variable": [
+								{
+									"key": "folderId",
+									"value": "folder-id-here"
+								}
+							]
+						},
+						"description": "Get all files within a specific folder"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notes",
+			"description": "Text notes stored in database",
+			"item": [
+				{
+					"name": "Get All Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notes?folderId=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notes"],
+							"query": [
+								{
+									"key": "folderId",
+									"value": "",
+									"description": "Filter by folder ID (optional)"
+								}
+							]
+						},
+						"description": "Get all notes with optional folder filter"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "My Note",
+									"type": "text",
+									"description": "Note title (required)"
+								},
+								{
+									"key": "content",
+									"value": "Note content here...",
+									"type": "text",
+									"description": "Note content (optional)"
+								},
+								{
+									"key": "folderId",
+									"value": "",
+									"type": "text",
+									"description": "Folder ID (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notes"]
+						},
+						"description": "Create a new note (checks storage limit)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Note by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notes/:noteId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notes", ":noteId"],
+							"variable": [
+								{
+									"key": "noteId",
+									"value": "note-id-here"
+								}
+							]
+						},
+						"description": "Get a single note by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Updated Note Title",
+									"type": "text",
+									"description": "New title (optional)"
+								},
+								{
+									"key": "content",
+									"value": "Updated content...",
+									"type": "text",
+									"description": "New content (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notes/:noteId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notes", ":noteId"],
+							"variable": [
+								{
+									"key": "noteId",
+									"value": "note-id-here"
+								}
+							]
+						},
+						"description": "Update note title and/or content"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/notes/:noteId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "notes", ":noteId"],
+							"variable": [
+								{
+									"key": "noteId",
+									"value": "note-id-here"
+								}
+							]
+						},
+						"description": "Delete a note (frees up storage)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Images",
+			"description": "Image file management with automatic optimization",
+			"item": [
+				{
+					"name": "Get All Images",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/images?folderId=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "images"],
+							"query": [
+								{
+									"key": "folderId",
+									"value": "",
+									"description": "Filter by folder ID (optional)"
+								}
+							]
+						},
+						"description": "Get all images with optional folder filter"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"description": "Image file (jpg/png/webp, max 5MB)",
+									"src": []
+								},
+								{
+									"key": "name",
+									"value": "My Image",
+									"type": "text",
+									"description": "Image name (required)"
+								},
+								{
+									"key": "folderId",
+									"value": "",
+									"type": "text",
+									"description": "Folder ID (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/images/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "images", "upload"]
+						},
+						"description": "Upload image (auto-optimized, checks storage limit)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/images/:imageId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "images", ":imageId"],
+							"variable": [
+								{
+									"key": "imageId",
+									"value": "image-id-here"
+								}
+							]
+						},
+						"description": "Delete image (frees up storage)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PDFs",
+			"description": "PDF file management",
+			"item": [
+				{
+					"name": "Get All PDFs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/pdfs?folderId=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "pdfs"],
+							"query": [
+								{
+									"key": "folderId",
+									"value": "",
+									"description": "Filter by folder ID (optional)"
+								}
+							]
+						},
+						"description": "Get all PDFs with optional folder filter"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload PDF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "pdf",
+									"type": "file",
+									"description": "PDF file (max 10MB)",
+									"src": []
+								},
+								{
+									"key": "name",
+									"value": "My Document",
+									"type": "text",
+									"description": "PDF name (required)"
+								},
+								{
+									"key": "folderId",
+									"value": "",
+									"type": "text",
+									"description": "Folder ID (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/pdfs/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "pdfs", "upload"]
+						},
+						"description": "Upload PDF (checks storage limit, 10MB max)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete PDF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/pdfs/:pdfId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "pdfs", ":pdfId"],
+							"variable": [
+								{
+									"key": "pdfId",
+									"value": "pdf-id-here"
+								}
+							]
+						},
+						"description": "Delete PDF (frees up storage)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Favorites",
+			"description": "Manage favorite files",
+			"item": [
+				{
+					"name": "Get All Favorites",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/favorites",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "favorites"]
+						},
+						"description": "Get all favorite items"
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Favorites",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/favorites/:itemId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "favorites", ":itemId"],
+							"variable": [
+								{
+									"key": "itemId",
+									"value": "file-id-here",
+									"description": "File ID (note, image, or PDF)"
+								}
+							]
+						},
+						"description": "Mark any file as favorite"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Favorites",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/favorites/:itemId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "favorites", ":itemId"],
+							"variable": [
+								{
+									"key": "itemId",
+									"value": "file-id-here"
+								}
+							]
+						},
+						"description": "Remove file from favorites"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

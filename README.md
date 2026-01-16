@@ -1,80 +1,110 @@
-# StackIt API
+# StackIt
 
-A simple REST API built with Express, TypeScript, and MongoDB.
+A file management API built with Express, TypeScript, and MongoDB. Manage notes, images, PDFs, and folders with built-in storage tracking.
 
-## What's This?
+## Features
 
-This is a starter template for building Node.js APIs. It includes everything you need to get started: database connection, health check endpoints, and a clean folder structure.
+- 📝 Notes - Create and edit text notes
+- 🖼️ Images - Upload images with automatic optimization
+- 📄 PDFs - Store PDF documents (up to 10MB)
+- 📁 Folders - Organize files in nested folders
+- ⭐ Favorites - Mark important files
+- 🔍 Search - Find files by name or content
+- 💾 Storage - 15GB per user with automatic tracking
+- 🔐 Auth - Email/password or Google OAuth
 
 ## Getting Started
 
-**1. Start MongoDB with Docker:**
-```bash
-docker-compose up -d
-```
-
-**2. Install packages:**
+**1. Install dependencies**
 ```bash
 npm install
 ```
 
-**3. Create a `.env` file:**
+**2. Set up MongoDB**
+
+You need MongoDB running locally or use MongoDB Atlas. Update the connection string in `.env`.
+
+**3. Configure environment**
+
+Copy `.env.example` to `.env` and update the values:
+
 ```env
 PORT=3000
-MONGODB_URI=mongodb://admin:password123@localhost:27017/stackit?authSource=admin
-DB_NAME=stackit
-API_VERSION=v1
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET=your-secret-key
 ```
 
-**4. Start the server:**
+**4. Run the server**
 ```bash
 npm run dev
 ```
 
-That's it! Your API is now running at `http://localhost:3000`
+Server runs on `http://localhost:3000`
 
-**To stop MongoDB:**
-```bash
-docker-compose down
-```
+## API Testing
 
-## Available Commands
+Import `StackIt-Public.postman_collection.json` into Postman:
 
-- `npm run dev` - Start the server (auto-reloads when you change code)
-- `npm run build` - Build for production
-- `npm start` - Run the production build
+1. Create environment with `baseUrl` = `http://localhost:3000`
+2. Register: `POST /api/v1/auth/register`
+3. Login: `POST /api/v1/auth/login` (token auto-saves)
+4. Test other endpoints
 
-## API Endpoints
+## Main Endpoints
 
-Try these in your browser or Postman:
+**Auth**
+- `POST /api/v1/auth/register` - Create account
+- `POST /api/v1/auth/login` - Login and get token
+- `POST /api/v1/auth/forgot-password` - Request OTP
+- `POST /api/v1/auth/reset-password` - Reset with OTP
 
-- **GET** `http://localhost:3000/` - Welcome message
-- **GET** `http://localhost:3000/api/v1/health` - Check if the API is working
-- **GET** `http://localhost:3000/api/v1/health/detailed` - See detailed server info
+**Files**
+- `GET /api/v1/files` - Get all files
+- `DELETE /api/v1/files/:id` - Delete file
+
+**Notes**
+- `POST /api/v1/notes` - Create note
+- `PUT /api/v1/notes/:id` - Update note
+- `GET /api/v1/notes` - Get all notes
+
+**Images**
+- `POST /api/v1/images/upload` - Upload image
+- `GET /api/v1/images` - Get all images
+
+**PDFs**
+- `POST /api/v1/pdfs/upload` - Upload PDF
+- `GET /api/v1/pdfs` - Get all PDFs
+
+**Folders**
+- `POST /api/v1/folders` - Create folder
+- `GET /api/v1/folders` - Get all folders
+- `GET /api/v1/folders/:id/files` - Get files in folder
+
+**Dashboard**
+- `GET /api/v1/dashboard/summary` - Storage stats
+- `GET /api/v1/dashboard/search` - Search files
 
 ## Project Structure
 
 ```
 src/
-├── config/       # Settings (loads from .env)
-├── database/     # MongoDB connection
-├── routes/       # Your API endpoints
-├── app.ts        # App setup
-└── server.ts     # Starts the server
+├── modules/          # Feature modules (auth, files, folders, etc.)
+├── shared/           # Middleware, types, utilities
+├── config/           # Configuration and Passport strategies
+├── database/         # MongoDB connection
+└── routes/           # API routes
 ```
 
-## Built With
+## Tech Stack
 
-- Express - Web framework
-- TypeScript - JavaScript with types
-- MongoDB & Mongoose - Database
-- Docker - Container platform for MongoDB
-- Node.js - Runtime environment
+- Express + TypeScript
+- MongoDB + Mongoose
+- Passport.js + JWT
+- Multer + Sharp (file handling)
+- Zod (validation)
 
-## Adding New Features
+## Scripts
 
-1. Create a new folder in `src/routes/` for your feature
-2. Add your controller functions
-3. Connect your routes in `src/routes/index.ts`
-
-That's all you need to know to get started!
+- `npm run dev` - Development mode
+- `npm run build` - Build for production
+- `npm start` - Run production build
