@@ -9,6 +9,7 @@ import { noteRoutes } from '../modules/note';
 import { imageRoutes } from '../modules/image';
 import { pdfRoutes } from '../modules/pdf';
 import { favoriteRoutes } from '../modules/favorite';
+import { dashboardRoutes } from '../modules/dashboard';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/files', fileRoutes);
 router.use('/folders', folderRoutes);
 router.use('/notes', noteRoutes);

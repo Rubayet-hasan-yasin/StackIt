@@ -63,15 +63,15 @@ export function createApp(): Application {
 
 export async function startServer(): Promise<void> {
   try {
+    // Connect to database first
+    await connectDatabase();
+    
     const app = createApp();
     
     // Ensure upload directory exists (only in development)
     if (config.nodeEnv === 'development') {
       await uploadService.ensureUploadDir();
     }
-    
-    // Connect to database
-    await connectDatabase();
 
     // Start server
     app.listen(config.port, () => {
@@ -97,7 +97,10 @@ export async function startServer(): Promise<void> {
 // Export app instance for Vercel
 export const app = createApp();
 
-// Initialize database connection for serverless
+// Initialize database connection for serverless (eager connection)
+if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  connectDatabase().catch(console.error);
+}
 connectDatabase().catch((error) => {
   console.error('Database connection failed:', error);
 });
