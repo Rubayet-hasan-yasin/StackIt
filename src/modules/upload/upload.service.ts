@@ -124,6 +124,28 @@ export class UploadService {
     });
   }
 
+  // Generic file upload (for PDFs, documents, etc.)
+  async uploadFile(
+    buffer: Buffer,
+    folder: string = 'files',
+    extension: string = '.pdf'
+  ): Promise<string> {
+    const filename = `${uuidv4()}${extension}`;
+    const folderPath = path.join(this.uploadDir, folder);
+
+    // In development: save to local file system
+    if (this.isDevelopment) {
+      await this.ensureUploadDir();
+      await fs.mkdir(folderPath, { recursive: true });
+      const filepath = path.join(folderPath, filename);
+      await fs.writeFile(filepath, buffer);
+      return `/${folder}/${filename}`;
+    }
+
+    
+    return `/${folder}/${filename}`;
+  }
+
   // Delete file
   async deleteFile(filename: string): Promise<void> {
     // Only delete files in development mode
